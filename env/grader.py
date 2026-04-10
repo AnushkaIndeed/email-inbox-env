@@ -1,11 +1,8 @@
-"""Scoring and grading logic for email inbox tasks."""
-
 from typing import Dict, List, Tuple
 from enum import Enum
 
 
 class ActionType(Enum):
-    """Valid action types."""
     CLASSIFY = "classify"
     ARCHIVE = "archive"
     DELETE = "delete"
@@ -16,7 +13,7 @@ class Grader:
     """Grades agent actions and computes rewards."""
 
     def __init__(self, spam_penalty: float = -1.0, important_reward: float = 1.0):
-        """Initialize grader with reward parameters."""
+        """Initialize grader with reward params."""
         self.spam_penalty = spam_penalty
         self.important_reward = important_reward
         self.correct_classifications = 0
@@ -29,7 +26,7 @@ class Grader:
         reward = 0.0
 
         if action_type == ActionType.DELETE.value:
-            # Reward for deleting spam, penalize for deleting important
+            # Reward for deleting spam, penalty for deleting important
             reward = self.spam_penalty if not email_is_spam else 1.0
             if email_is_important:
                 reward -= 2.0
@@ -54,7 +51,6 @@ class Grader:
     def compute_metrics(
         self, actions: List[str], email_labels: List[Tuple[bool, bool]]
     ) -> Dict[str, float]:
-        """Compute performance metrics."""
         correct = sum(
             1 for action, (is_spam, is_imp) in zip(actions, email_labels)
             if (action == "delete" and is_spam) or (action == "classify" and (is_spam or is_imp))

@@ -1,12 +1,9 @@
-"""Task definitions for email inbox environment."""
-
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any
+from typing import List
 from .models import Email, Action
 
 
 class Task(ABC):
-    """Abstract base class for tasks."""
 
     @abstractmethod
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:

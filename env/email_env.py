@@ -1,5 +1,3 @@
-"""Main RL environment for email inbox management."""
-
 import json
 from pathlib import Path
 from typing import List, Tuple, Optional
@@ -9,18 +7,10 @@ from .tasks import Task, SpamDetectionTask, ImportantEmailTask, InboxOrganizatio
 
 
 class EmailEnvironment:
-    """Reinforcement Learning environment for email inbox."""
 
     def __init__(self, data_path: Optional[str] = None, task_type: str = "spam"):
-        """Initialize email environment.
         
-        Args:
-            data_path: Path to emails dataset (auto-detected if None)
-            task_type: Type of task (spam, important, organize)
-        """
-        # Auto-detect data path if not provided
         if data_path is None:
-            # Try multiple possible paths
             possible_paths = [
                 Path(__file__).parent.parent / "data" / "emails.json",
                 Path("data") / "emails.json",
@@ -31,7 +21,7 @@ class EmailEnvironment:
                     data_path = str(path)
                     break
             if data_path is None:
-                data_path = str(possible_paths[0])  # Default path
+                data_path = str(possible_paths[0])  
         
         self.data_path = data_path
         self.grader = Grader()
@@ -40,7 +30,6 @@ class EmailEnvironment:
         self.episode_reward = 0.0
         self.actions_taken: List[Action] = []
         
-        # Load task
         task_map = {
             "spam": SpamDetectionTask(),
             "important": ImportantEmailTask(),
@@ -48,11 +37,9 @@ class EmailEnvironment:
         }
         self.task: Task = task_map.get(task_type, SpamDetectionTask())
         
-        # Load emails
         self._load_emails()
 
     def _load_emails(self) -> None:
-        """Load emails from JSON file."""
         try:
             with open(self.data_path, "r") as f:
                 data = json.load(f)
@@ -89,14 +76,6 @@ class EmailEnvironment:
         )
 
     def step(self, action: Action) -> Tuple[EmailState, float, bool]:
-        """Execute action and return next state, reward, done.
-        
-        Args:
-            action: Action taken by agent
-            
-        Returns:
-            Tuple of (next_state, reward, done)
-        """
         if self.current_idx >= len(self.emails):
             return self._get_state(), 0.0, True
 
@@ -126,7 +105,6 @@ class EmailEnvironment:
                 precision=0.0, recall=0.0
             )
         
-        # Compute metrics using grader
         metrics = self.grader.compute_metrics(
             [a.action_type for a in self.actions_taken],
             [(e.is_spam, e.is_important) for e in self.emails[:self.current_idx]],
@@ -136,10 +114,10 @@ class EmailEnvironment:
             total_reward=self.episode_reward,
             emails_processed=self.current_idx,
             accuracy=metrics.get("accuracy", 0.0),
-            precision=metrics.get("accuracy", 0.0),  # Simplified
-            recall=metrics.get("accuracy", 0.0),  # Simplified
+            precision=metrics.get("accuracy", 0.0),  
+            recall=metrics.get("accuracy", 0.0) 
         )
 
     def get_task_description(self) -> str:
-        """Get current task description."""
+        
         return self.task.get_description()

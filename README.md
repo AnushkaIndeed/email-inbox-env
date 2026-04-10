@@ -21,7 +21,7 @@ email-inbox-env/
 │   ├── tasks.py            # 3 task definitions
 │   └── grader.py           # Scoring and grading
 ├── data/
-│   └── emails.json         # Fake dataset (10 emails)
+│   └── emails.json         # Test dataset (10 emails)
 ├── inference.py            # Run inference
 ├── openenv.yaml            # Environment config
 ├── Dockerfile              # Docker configuration
