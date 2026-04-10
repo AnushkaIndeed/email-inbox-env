@@ -1,3 +1,12 @@
+---
+title: Email Inbox RL Environment
+emoji: 📧
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_file: inference.py
+pinned: false
+---
 # Email Inbox Environment
 
 A reinforcement learning environment for email inbox management with support for multiple tasks including spam detection, important email prioritization, and inbox organization.
