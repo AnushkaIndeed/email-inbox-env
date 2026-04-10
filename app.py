@@ -70,7 +70,9 @@ with gr.Blocks() as demo:
             """)
         demo.load(fn=get_email, outputs=[subject, body])
 
-app = gr.mount_gradio_app(app, demo, path="/")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=7860)
+
+app = gr.mount_gradio_app(app, demo, path="/ui")
