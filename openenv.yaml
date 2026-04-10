@@ -3,7 +3,7 @@ description: RL environment for managing email inbox tasks such as spam detectio
 
 entrypoint:
   type: http
-  url: http://0.0.0.0:7860
+  url: http://localhost:7860 
 
 api:
   reset: /reset
