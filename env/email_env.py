@@ -11,13 +11,28 @@ from .tasks import Task, SpamDetectionTask, ImportantEmailTask, InboxOrganizatio
 class EmailEnvironment:
     """Reinforcement Learning environment for email inbox."""
 
-    def __init__(self, data_path: str = "data/emails.json", task_type: str = "spam"):
+    def __init__(self, data_path: Optional[str] = None, task_type: str = "spam"):
         """Initialize email environment.
         
         Args:
-            data_path: Path to emails dataset
+            data_path: Path to emails dataset (auto-detected if None)
             task_type: Type of task (spam, important, organize)
         """
+        # Auto-detect data path if not provided
+        if data_path is None:
+            # Try multiple possible paths
+            possible_paths = [
+                Path(__file__).parent.parent / "data" / "emails.json",
+                Path("data") / "emails.json",
+                Path("emails.json"),
+            ]
+            for path in possible_paths:
+                if path.exists():
+                    data_path = str(path)
+                    break
+            if data_path is None:
+                data_path = str(possible_paths[0])  # Default path
+        
         self.data_path = data_path
         self.grader = Grader()
         self.emails: List[Email] = []

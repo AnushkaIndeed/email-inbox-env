@@ -3,7 +3,6 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
-from typing import Optional
 
 
 class Email(BaseModel):
@@ -12,15 +11,17 @@ class Email(BaseModel):
     sender: str
     subject: str
     body: str
-    timestamp: datetime
+    timestamp: Optional[datetime] = None
     is_spam: bool = False
     is_important: bool = False
     has_attachment: bool = False
 
 class EmailState(BaseModel):
-    current_email: Optional[Email] = None
-    done: bool = False
+    current_email: Optional[Email] = None   
+    inbox_size: int = 0
     processed_count: int = 0
+    reward: float = 0.0
+    done: bool = False
 
 
 class Action(BaseModel):

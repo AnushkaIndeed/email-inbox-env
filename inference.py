@@ -1,20 +1,20 @@
 import os
-from openai import OpenAI
+from pathlib import Path
 from env.email_env import EmailEnvironment
 from env.models import Action
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
-HF_TOKEN = os.getenv("HF_TOKEN")
+HF_TOKEN = os.getenv("HF_TOKEN", None)
 
-if HF_TOKEN is None:
-    raise ValueError("HF_TOKEN environment variable is required")
-
-
-client = OpenAI(
-    base_url=API_BASE_URL,
-    api_key=HF_TOKEN
-)
+# OpenAI client only if token is available
+client = None
+if HF_TOKEN:
+    from openai import OpenAI
+    client = OpenAI(
+        base_url=API_BASE_URL,
+        api_key=HF_TOKEN
+    )
 
 def decide_action_with_llm(email_text: str):
     if "win" in email_text.lower() or "offer" in email_text.lower():
