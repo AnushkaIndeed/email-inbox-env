@@ -7,6 +7,30 @@ env = EmailEnvironment()
 state = env.reset()
 
 app = FastAPI()
+@app.post("/reset")
+def reset_api():
+    global state
+    print("🔥 RESET CALLED")
+    state = env.reset()
+    return {
+        "done": state.done,
+        "processed_count": state.processed_count
+    }
+
+@app.post("/step")
+def step_api(action: dict):
+    global state
+    print(f"🔥 STEP CALLED: {action}")
+
+    act = Action(action_type=action.get("action"), confidence=0.8)
+    next_state, reward, done = env.step(act)
+    state = next_state
+    
+    return {
+        "reward": reward,
+        "done": done,
+        "processed_count": state.processed_count
+    }
 
 def get_email():
     global state
