@@ -38,6 +38,7 @@ class EmailEnvironment:
         self.task: Task = task_map.get(task_type, SpamDetectionTask())
         
         self._load_emails()
+    
 
     def _load_emails(self) -> None:
         try:
@@ -121,3 +122,5 @@ class EmailEnvironment:
     def get_task_description(self) -> str:
         
         return self.task.get_description()
+    def state(self):
+        return self._get_state()
