@@ -1,9 +1,12 @@
 import gradio as gr
+from fastapi import FastAPI
 from env.email_env import EmailEnvironment
 from env.models import Action
 
 env = EmailEnvironment()
 state = env.reset()
+
+app = FastAPI()
 
 def get_email():
     global state
@@ -66,4 +69,8 @@ with gr.Blocks() as demo:
             - Uses structured inference pipeline
             """)
         demo.load(fn=get_email, outputs=[subject, body])
-demo.launch(server_name="0.0.0.0", server_port=7861)
+
+app = gr.mount_gradio_app(app, demo, path="/")
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
