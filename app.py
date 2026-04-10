@@ -2,11 +2,16 @@ import gradio as gr
 from fastapi import FastAPI
 from env.email_env import EmailEnvironment
 from env.models import Action
+from fastapi.responses import RedirectResponse
 
 env = EmailEnvironment()
 state = env.reset()
 
 app = FastAPI()
+@app.get("/")
+def root():
+    return RedirectResponse(url="/ui")
+
 @app.post("/reset")
 def reset_api():
     global state
