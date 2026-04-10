@@ -1,6 +1,13 @@
 name: email-inbox-env
 description: RL environment for managing email inbox tasks such as spam detection, prioritization, and organization
-entrypoint: env/email_env.py
+
+entrypoint:
+  type: http
+  url: http://0.0.0.0:7860
+
+api:
+  reset: /reset
+  step: /step
 
 tasks:
   - name: spam
