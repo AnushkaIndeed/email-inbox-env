@@ -15,11 +15,16 @@ def root():
 @app.post("/reset")
 def reset_api():
     global state
-    print("🔥 RESET CALLED")
+    print("RESET CALLED")
+
     state = env.reset()
+
     return {
-        "done": state.done,
-        "processed_count": state.processed_count
+        "observation": {
+            "subject": state.current_email.subject if state.current_email else "",
+            "body": state.current_email.body if state.current_email else ""
+        },
+        "done": state.done
     }
 
 @app.post("/step")
