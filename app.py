@@ -10,7 +10,7 @@ state = env.reset()
 app = FastAPI()
 @app.get("/")
 def root():
-    return RedirectResponse(url="/ui")
+    return {"status": "ok"}
 
 @app.post("/reset")
 def reset_api():
@@ -30,16 +30,19 @@ def reset_api():
 @app.post("/step")
 def step_api(action: dict):
     global state
-    print(f"🔥 STEP CALLED: {action}")
+    print(f"STEP CALLED: {action}")
 
     act = Action(action_type=action.get("action"), confidence=0.8)
     next_state, reward, done = env.step(act)
     state = next_state
-    
+
     return {
+        "observation": {
+            "subject": state.current_email.subject if state.current_email else "",
+            "body": state.current_email.body if state.current_email else ""
+        },
         "reward": reward,
-        "done": done,
-        "processed_count": state.processed_count
+        "done": done
     }
 
 def get_email():
