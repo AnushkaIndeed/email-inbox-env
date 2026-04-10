@@ -1,8 +1,7 @@
 import os
 from openai import OpenAI
 from env.email_env import EmailEnvironment
-from env.models import Action, Email
-from typing import Optional
+from env.models import Action
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
@@ -39,10 +38,10 @@ def run_inference(task_type="spam"):
         step += 1
 
         # Get email text safely
-        try:
+        if state.current_email:
             email_text = f"{state.current_email.subject} {state.current_email.body}"
-        except Exception:
-            email_text = "unknown email"
+        else:
+            email_text = "no email"
 
         # Decide action 
         action_type = decide_action_with_llm(email_text)
