@@ -1,40 +1,40 @@
 import gradio as gr
+from env.email_env import EmailEnvironment
+from env.models import Action
 
-# Dummy email data (for UI demo)
-emails = [
-    {"subject": "Win a lottery!", "body": "Click to claim prize", "type": "spam"},
-    {"subject": "Meeting at 5 PM", "body": "Project discussion", "type": "important"},
-    {"subject": "50% OFF Offer", "body": "Limited time deal!", "type": "spam"},
-]
-
-current_index = 0
+env = EmailEnvironment()
+state = env.reset()
 
 def get_email():
-    global current_index
-    if current_index >= len(emails):
+    global state
+    
+    if state.done or not state.current_email:
         return "No more emails", ""
-    email = emails[current_index]
-    return email["subject"], email["body"]
+    
+    return state.current_email.subject, state.current_email.body
 
-def take_action(action):
-    global current_index
-    if current_index >= len(emails):
-        return "Done!", ""
+def take_action(action_type):
+    global state
     
-    email = emails[current_index]
-    current_index += 1
+    if state.done:
+        return "Done!"
     
-    return f"Action taken: {action}", f"Next email loaded"
+    action = Action(action_type=action_type, confidence=0.8)
+    
+    next_state, reward, done = env.step(action)
+    state = next_state
+    
+    return f"Action: {action_type} | Reward: {reward}"
 
 def reset():
-    global current_index
-    current_index = 0
+    global state
+    state = env.reset()
     return get_email()
 
 with gr.Blocks() as demo:
     
     gr.Markdown("# 📧 Email Inbox RL Environment")
-    gr.Markdown("Interactive UI for Email Classification Agent")
+    gr.Markdown("Email Classification Agent")
 
     with gr.Tabs():
 
@@ -65,5 +65,5 @@ with gr.Blocks() as demo:
             - RL-based environment simulation
             - Uses structured inference pipeline
             """)
-
+demo.load(fn=get_email, outputs=[subject, body])
 demo.launch(server_name="0.0.0.0", server_port=7860)
