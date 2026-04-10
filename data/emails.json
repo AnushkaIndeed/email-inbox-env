@@ -1,0 +1,102 @@
+[
+  {
+    "id": "email_001",
+    "sender": "spammer@example.com",
+    "subject": "URGENT: Claim your prize NOW!",
+    "body": "You have won $10,000! Click here to claim. Limited time offer.",
+    "timestamp": "2026-04-01T08:00:00Z",
+    "is_spam": true,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_002",
+    "sender": "boss@company.com",
+    "subject": "Critical: Project deadline update",
+    "body": "Please see attached regarding the Q2 project timeline. We need your input by EOD.",
+    "timestamp": "2026-04-02T09:30:00Z",
+    "is_spam": false,
+    "is_important": true,
+    "has_attachment": true
+  },
+  {
+    "id": "email_003",
+    "sender": "noreply@newsletter.com",
+    "subject": "Weekly Tech Newsletter",
+    "body": "This week's top stories in technology and innovation...",
+    "timestamp": "2026-04-02T10:00:00Z",
+    "is_spam": false,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_004",
+    "sender": "admin@bank.fake",
+    "subject": "Verify your account immediately",
+    "body": "Your account has been flagged. Click here to verify identity. Act now!",
+    "timestamp": "2026-04-02T11:15:00Z",
+    "is_spam": true,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_005",
+    "sender": "client@bigclient.com",
+    "subject": "Contract review meeting",
+    "body": "Hi, I'd like to schedule a meeting to discuss the new contract terms. Please let me know your availability.",
+    "timestamp": "2026-04-03T07:45:00Z",
+    "is_spam": false,
+    "is_important": true,
+    "has_attachment": true
+  },
+  {
+    "id": "email_006",
+    "sender": "deals@shopping.com",
+    "subject": "Flash Sale: 80% OFF Everything!",
+    "body": "Amazing deals just for you! Limited stock available. Shop now before items run out.",
+    "timestamp": "2026-04-03T12:00:00Z",
+    "is_spam": true,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_007",
+    "sender": "hr@company.com",
+    "subject": "Benefits enrollment deadline",
+    "body": "Reminder: Open enrollment ends on April 15th. Please complete your selections.",
+    "timestamp": "2026-04-03T13:30:00Z",
+    "is_spam": false,
+    "is_important": true,
+    "has_attachment": false
+  },
+  {
+    "id": "email_008",
+    "sender": "friend@personal.mail",
+    "subject": "Weekend plans?",
+    "body": "Hey! Are you free this weekend? We should grab coffee.",
+    "timestamp": "2026-04-04T15:00:00Z",
+    "is_spam": false,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_009",
+    "sender": "promo@retailer.com",
+    "subject": "Exclusive offer just for you!",
+    "body": "We have a special discount code for you. Valid only today. Use code: SPAM20",
+    "timestamp": "2026-04-04T16:45:00Z",
+    "is_spam": true,
+    "is_important": false,
+    "has_attachment": false
+  },
+  {
+    "id": "email_010",
+    "sender": "team@company.com",
+    "subject": "Team standup - April 4th",
+    "body": "Reminder: Our team sync is at 2 PM today. Agenda: Sprint retrospective and planning.",
+    "timestamp": "2026-04-04T17:30:00Z",
+    "is_spam": false,
+    "is_important": false,
+    "has_attachment": true
+  }
+]

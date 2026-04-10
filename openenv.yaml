@@ -1,0 +1,51 @@
+name: email-inbox-env
+version: 1.0.0
+description: Email Inbox Management RL Environment
+
+# Environment configuration
+environment:
+  type: rl-environment
+  obs_space:
+    type: dict
+    properties:
+      sender: { type: string }
+      subject: { type: string }
+      body: { type: string }
+      is_spam: { type: boolean }
+      is_important: { type: boolean }
+      has_attachment: { type: boolean }
+  
+  action_space:
+    type: categorical
+    actions:
+      - classify
+      - archive
+      - delete
+      - move
+
+# Tasks
+tasks:
+  - name: spam_detection
+    description: Identify and remove spam emails
+    reward_fn: spam_detection_reward
+  
+  - name: important_email
+    description: Prioritize important emails
+    reward_fn: important_email_reward
+  
+  - name: inbox_organization
+    description: Organize emails into folders
+    reward_fn: organization_reward
+
+# Training config
+training:
+  episodes: 100
+  max_steps_per_episode: 10
+  learning_rate: 0.001
+  batch_size: 32
+
+# Data
+data:
+  train_split: 0.8
+  val_split: 0.1
+  test_split: 0.1
