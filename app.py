@@ -64,8 +64,6 @@ with gr.Blocks() as demo:
             - Tasks: Spam Detection, Important Email, Organization
             - RL-based environment simulation
             - Uses structured inference pipeline
-            
-            Built for OpenEnv Hackathon 🚀
             """)
 
 demo.launch(server_name="0.0.0.0", server_port=7860)
