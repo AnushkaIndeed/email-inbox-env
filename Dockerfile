@@ -16,4 +16,4 @@ COPY . .
 ENV PYTHONUNBUFFERED=1
 
 # Run inference
-CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port 7680 & python inference.py & python app.py"]
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port 7860 & python inference.py & python app.py"]
