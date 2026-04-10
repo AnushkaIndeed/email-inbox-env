@@ -65,5 +65,5 @@ with gr.Blocks() as demo:
             - RL-based environment simulation
             - Uses structured inference pipeline
             """)
-demo.load(fn=get_email, outputs=[subject, body])
+        demo.load(fn=get_email, outputs=[subject, body])
 demo.launch(server_name="0.0.0.0", server_port=7860)
