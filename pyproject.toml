@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-email-inbox-server = "server.app:main"
+server = "server.app:main"
 
 [project.optional-dependencies]
 dev = [
@@ -30,4 +30,4 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["env*"]
+include = ["env*", "server*"]

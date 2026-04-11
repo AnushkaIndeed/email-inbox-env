@@ -20,4 +20,4 @@ ENV PYTHONPATH=/app
 EXPOSE 7860
 
 # Run the server via the entry point defined in pyproject.toml
-CMD ["uv", "run", "email-inbox-server"]
+CMD ["uv", "run", "server"]
