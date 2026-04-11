@@ -11,3 +11,7 @@ env/email_env.py
 env/grader.py
 env/models.py
 env/tasks.py
+server/__init__.py
+server/app.py
+tests/test_env.py
+tests/test_tasks.py

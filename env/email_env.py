@@ -7,9 +7,9 @@ from .tasks import Task, SpamDetectionTask, ImportantEmailTask, InboxOrganizatio
 
 
 class EmailEnvironment:
+    """RL Environment for Email Inbox tasks."""
 
     def __init__(self, data_path: Optional[str] = None, task_type: str = "spam"):
-        
         if data_path is None:
             possible_paths = [
                 Path(__file__).parent.parent / "data" / "emails.json",
@@ -45,8 +45,8 @@ class EmailEnvironment:
             with open(self.data_path, "r") as f:
                 data = json.load(f)
                 self.emails = [Email(**email) for email in data]
-        except FileNotFoundError:
-            print(f"Warning: Email data not found at {self.data_path}")
+        except (FileNotFoundError, json.JSONDecodeError):
+            print(f"Warning: Email data not found or invalid at {self.data_path}")
             self.emails = []
 
     def reset(self) -> EmailState:
@@ -63,7 +63,7 @@ class EmailEnvironment:
                 current_email=None,
                 inbox_size=len(self.emails),
                 processed_count=self.current_idx,
-                reward=0.0,
+                reward=self.episode_reward,
                 done=True,
             )
         
@@ -77,17 +77,14 @@ class EmailEnvironment:
         )
 
     def step(self, action: Action) -> Tuple[EmailState, float, bool]:
+        """Perform action and return next state, reward, done."""
         if self.current_idx >= len(self.emails):
             return self._get_state(), 0.0, True
 
         current_email = self.emails[self.current_idx]
         
-        # Grade the action
-        reward = self.grader.grade_action(
-            action.action_type,
-            current_email.is_spam,
-            current_email.is_important,
-        )
+        # New task-specific reward logic
+        reward = self.task.grade_step(current_email, action)
         
         self.episode_reward += reward
         self.actions_taken.append(action)
@@ -99,28 +96,27 @@ class EmailEnvironment:
         return next_state, reward, done
 
     def get_metrics(self) -> EpisodeMetrics:
-        """Get episode metrics."""
-        if not self.emails:
+        """Get episode metrics based on task evaluation."""
+        if not self.emails or not self.actions_taken:
             return EpisodeMetrics(
                 total_reward=0.0, emails_processed=0, accuracy=0.0,
                 precision=0.0, recall=0.0
             )
         
-        metrics = self.grader.compute_metrics(
-            [a.action_type for a in self.actions_taken],
-            [(e.is_spam, e.is_important) for e in self.emails[:self.current_idx]],
-        )
+        # Use task-specific evaluation for accuracy
+        metrics_emails = self.emails[:len(self.actions_taken)]
+        accuracy = self.task.evaluate(metrics_emails, self.actions_taken)
         
         return EpisodeMetrics(
             total_reward=self.episode_reward,
-            emails_processed=self.current_idx,
-            accuracy=metrics.get("accuracy", 0.0),
-            precision=metrics.get("accuracy", 0.0),  
-            recall=metrics.get("accuracy", 0.0) 
+            emails_processed=len(self.actions_taken),
+            accuracy=accuracy,
+            precision=accuracy, # Placeholder for more complex metrics
+            recall=accuracy
         )
 
     def get_task_description(self) -> str:
-        
         return self.task.get_description()
+
     def state(self):
         return self._get_state()

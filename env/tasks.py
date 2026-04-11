@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 from .models import Email, Action
 
 
@@ -8,6 +8,11 @@ class Task(ABC):
     @abstractmethod
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Evaluate agent performance on task."""
+        pass
+
+    @abstractmethod
+    def grade_step(self, email: Email, action: Action) -> float:
+        """Calculate reward for a single step within this task."""
         pass
 
     @abstractmethod
@@ -22,8 +27,17 @@ class SpamDetectionTask(Task):
     def get_description(self) -> str:
         return "Detect and properly classify spam emails from the inbox"
 
+    def grade_step(self, email: Email, action: Action) -> float:
+        """Reward specifically for handling spam correctly."""
+        if email.is_spam:
+            return 1.0 if action.action_type == "delete" else -0.5
+        else:
+            return 0.1 if action.action_type != "delete" else -1.0
+
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on spam detection accuracy."""
+        if not emails:
+            return 0.0
         correct = 0
         for email, action in zip(emails, actions):
             if email.is_spam and action.action_type == "delete":
@@ -31,7 +45,7 @@ class SpamDetectionTask(Task):
             elif not email.is_spam and action.action_type != "delete":
                 correct += 1
         
-        return correct / len(emails) if emails else 0.0
+        return correct / len(emails)
 
 
 class ImportantEmailTask(Task):
@@ -40,8 +54,17 @@ class ImportantEmailTask(Task):
     def get_description(self) -> str:
         return "Identify and prioritize important emails for user attention"
 
+    def grade_step(self, email: Email, action: Action) -> float:
+        """Reward specifically for identifying importance."""
+        if email.is_important:
+            return 1.0 if action.action_type == "classify" else -1.0
+        else:
+            return 0.1 if action.action_type != "classify" else -0.5
+
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on important email identification."""
+        if not emails:
+            return 0.0
         correct = 0
         for email, action in zip(emails, actions):
             if email.is_important and action.action_type == "classify":
@@ -49,7 +72,7 @@ class ImportantEmailTask(Task):
             elif not email.is_important and action.action_type != "classify":
                 correct += 1
         
-        return correct / len(emails) if emails else 0.0
+        return correct / len(emails)
 
 
 class InboxOrganizationTask(Task):
@@ -58,6 +81,12 @@ class InboxOrganizationTask(Task):
     def get_description(self) -> str:
         return "Organize emails into appropriate folders (work, personal, etc.)"
 
+    def grade_step(self, email: Email, action: Action) -> float:
+        """Reward for any organizational action."""
+        if action.action_type in ["move", "archive"]:
+            return 0.5
+        return -0.1
+
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on appropriate folder organization."""
         if not emails:
@@ -65,7 +94,6 @@ class InboxOrganizationTask(Task):
         
         correct = 0
         for email, action in zip(emails, actions):
-            # Reward any organizational action (move or archive)
             if action.action_type in ["move", "archive"]:
                 correct += 1
         
