@@ -14,19 +14,21 @@ A reinforcement learning environment for email inbox management with support for
 ## Project Structure
 
 ```
-email-inbox-env/
+email-inbox/
+├── app.py              # Main FastAPI server & API
+├── dashboard.html      # Interactive IntelliMail dashboard
+├── login.html          # Landing & Login page
 ├── env/
-│   ├── email_env.py        # Main RL logic
-│   ├── models.py           # Pydantic models
-│   ├── tasks.py            # 3 task definitions
-│   └── grader.py           # Scoring and grading
+│   ├── email_env.py    # Main RL environment logic
+│   ├── models.py       # Pydantic data models
+│   ├── tasks.py        # RL task definitions
+│   └── grader.py       # Scoring and grading logic
 ├── data/
-│   └── emails.json         # Test dataset (10 emails)
-├── inference.py            # Run inference
-├── openenv.yaml            # Environment config
-├── Dockerfile              # Docker configuration
-├── requirements.txt        # Python dependencies
-└── README.md               # This file
+│   └── emails.json     # Sample email dataset
+├── openenv.yaml        # OpenEnv environment config
+├── Dockerfile          # Container configuration for deployment
+├── requirements.txt    # Python dependencies
+└── README.md           # Project documentation
 ```
 
 ## Features
