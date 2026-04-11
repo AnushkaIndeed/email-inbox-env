@@ -3,6 +3,10 @@ from fastapi.responses import FileResponse, JSONResponse
 from env.email_env import EmailEnvironment
 from env.models import Action
 import os
+import uvicorn
+
+# Define base directory for locating static UI files
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = EmailEnvironment()
 state = env.reset()
@@ -11,11 +15,11 @@ app = FastAPI()
 
 @app.get("/")
 async def read_login():
-    return FileResponse('login.html')
+    return FileResponse(os.path.join(BASE_DIR, 'login.html'))
 
 @app.get("/dashboard")
 async def read_dashboard():
-    return FileResponse('dashboard.html')
+    return FileResponse(os.path.join(BASE_DIR, 'dashboard.html'))
 
 @app.post("/reset")
 async def reset_api():
@@ -73,7 +77,9 @@ async def step_api(request: Request):
         "done": done
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+def main():
+    """Entry point for the server script."""
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860, reload=False)
 
+if __name__ == "__main__":
+    main()
