@@ -1,113 +1,77 @@
-import gradio as gr
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
 from env.email_env import EmailEnvironment
 from env.models import Action
-from fastapi.responses import RedirectResponse
+import os
 
 env = EmailEnvironment()
 state = env.reset()
 
 app = FastAPI()
+
 @app.get("/")
-def root():
-    return {"status": "ok"}
+async def read_login():
+    return FileResponse('login.html')
+
+@app.get("/dashboard")
+async def read_dashboard():
+    return FileResponse('dashboard.html')
 
 @app.post("/reset")
-def reset_api():
+async def reset_api():
     global state
-    print("RESET CALLED")
-
     state = env.reset()
+    
+    email_data = None
+    if state.current_email:
+        email_data = {
+            "id": state.current_email.id,
+            "sender": state.current_email.sender,
+            "subject": state.current_email.subject,
+            "body": state.current_email.body,
+            "timestamp": state.current_email.timestamp.isoformat() if state.current_email.timestamp else None,
+            "is_important": state.current_email.is_important,
+            "has_attachment": state.current_email.has_attachment
+        }
 
     return {
-        "observation": {
-            "subject": state.current_email.subject if state.current_email else "",
-            "body": state.current_email.body if state.current_email else ""
-        },
+        "observation": email_data,
+        "reward": state.reward,
+        "processed_count": state.processed_count,
+        "inbox_size": state.inbox_size,
         "done": state.done
     }
 
 @app.post("/step")
-def step_api(action: dict):
+async def step_api(request: Request):
     global state
-    print(f"STEP CALLED: {action}")
-
-    act = Action(action_type=action.get("action"), confidence=0.8)
+    data = await request.json()
+    action_type = data.get("action")
+    
+    act = Action(action_type=action_type, confidence=1.0)
     next_state, reward, done = env.step(act)
     state = next_state
 
+    email_data = None
+    if state.current_email:
+        email_data = {
+            "id": state.current_email.id,
+            "sender": state.current_email.sender,
+            "subject": state.current_email.subject,
+            "body": state.current_email.body,
+            "timestamp": state.current_email.timestamp.isoformat() if state.current_email.timestamp else None,
+            "is_important": state.current_email.is_important,
+            "has_attachment": state.current_email.has_attachment
+        }
+
     return {
-        "observation": {
-            "subject": state.current_email.subject if state.current_email else "",
-            "body": state.current_email.body if state.current_email else ""
-        },
+        "observation": email_data,
         "reward": reward,
+        "total_reward": state.reward,
+        "processed_count": state.processed_count,
+        "inbox_size": state.inbox_size,
         "done": done
     }
-
-def get_email():
-    global state
-    
-    if state.done or not state.current_email:
-        return "No more emails", ""
-    
-    return state.current_email.subject, state.current_email.body
-
-def take_action(action_type):
-    global state
-    
-    if state.done:
-        return "Done!"
-    
-    action = Action(action_type=action_type, confidence=0.8)
-    
-    next_state, reward, done = env.step(action)
-    state = next_state
-    
-    return f"Action: {action_type} | Reward: {reward}"
-
-def reset():
-    global state
-    state = env.reset()
-    return get_email()
-
-with gr.Blocks() as demo:
-    
-    gr.Markdown("# 📧 Email Inbox RL Environment")
-    gr.Markdown("Email Classification Agent")
-
-    with gr.Tabs():
-
-        with gr.Tab("📥 Playground"):
-            subject = gr.Textbox(label="Email Subject")
-            body = gr.Textbox(label="Email Body")
-
-            btn_load = gr.Button("Load Email")
-            btn_delete = gr.Button("Delete (Spam)")
-            btn_classify = gr.Button("Classify")
-            btn_reset = gr.Button("Reset")
-
-            output = gr.Textbox(label="Output")
-
-            btn_load.click(fn=get_email, outputs=[subject, body])
-            btn_delete.click(fn=lambda: take_action("delete"), outputs=output)
-            btn_classify.click(fn=lambda: take_action("classify"), outputs=output)
-            btn_reset.click(fn=reset, outputs=[subject, body])
-
-        with gr.Tab("📊 Logs"):
-            gr.Markdown("Check Hugging Face Logs tab for RL inference output.")
-
-        with gr.Tab("ℹ️ About"):
-            gr.Markdown("""
-            ### Email Inbox RL Environment
-            
-            - Tasks: Spam Detection, Important Email, Organization
-            - RL-based environment simulation
-            - Uses structured inference pipeline
-            """)
-        demo.load(fn=get_email, outputs=[subject, body])
-
-app = gr.mount_gradio_app(app, demo, path="/ui")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,10 +1,10 @@
 ---
-title: Email Inbox RL Environment
+title: IntelliMail RL Environment
 emoji: 📧
 colorFrom: blue
 colorTo: purple
 sdk: docker
-app_file: inference.py
+app_file: app.py
 pinned: false
 ---
 # Email Inbox Environment

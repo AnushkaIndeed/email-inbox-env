@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Email Inbox RL Environment</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-color: #f8fafc;
+            --white: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --border-color: #e2e8f0;
+            --indigo-50: #eef2ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        nav {
+            padding: 24px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 100px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 80px;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .tagline {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--indigo-50);
+            color: var(--accent-color);
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: var(--white);
+            border: none;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-color);
+        }
+
+        /* Hero Image/Card */
+        .hero-visual {
+            flex: 1;
+            position: relative;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 48px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .login-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            outline: none;
+            font-size: 1rem;
+            background: var(--bg-color);
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Features Section */
+        .features {
+            background: var(--white);
+            padding: 100px 60px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .feature-card {
+            padding: 32px;
+            border-radius: 20px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--white);
+            color: var(--accent-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Project Description Section */
+        .about-section {
+            padding: 100px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 32px;
+            font-weight: 800;
+        }
+
+        .about-content {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        footer {
+            padding: 40px 60px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 60px;
+            }
+
+            .hero-title {
+                font-size: 2.75rem;
+            }
+
+            .cta-group {
+                justify-content: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-card {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <i data-lucide="mail"></i>
+            <span>IntelliMail</span>
+        </div>
+        <div class="nav-links">
+            <a href="#about" class="btn btn-outline" style="border: none;">About</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-text">
+            <span class="tagline">Next-Gen Email Management</span>
+            <h1 class="hero-title">Automate your Inbox with AI</h1>
+            <p class="hero-description">
+                The Email Inbox RL Environment is a lightweight reinforcement learning-based system designed to simulate
+                real-world email management tasks. Master spam detection, classification, and organization through
+                intelligent agent training.
+            </p>
+            <div class="cta-group">
+                <a href="/dashboard" class="btn btn-primary">
+                    Launch Environment <i data-lucide="arrow-right"></i>
+                </a>
+                <a href="#features" class="btn btn-outline">Explore Features</a>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="login-card">
+                <h2>Welcome Back</h2>
+                <p>Access your training dashboard</p>
+                <div class="form-group">
+                    <label>Agent Identifier</label>
+                    <input type="text" value="agent_v1_rl" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Training Session</label>
+                    <input type="password" value="••••••••" readonly>
+                </div>
+                <a href="/dashboard" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    Login & Start Session
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="about" class="about-section">
+        <h2>What is RL Inbox?</h2>
+        <div class="about-content">
+            <p>
+                The Email Inbox RL Environment simulates the daily decision-making process of an email user. Every email
+                is treated as an <strong>environment state</strong>, and every decision—whether to classify, archive, or
+                delete—is an <strong>action</strong>.
+            </p>
+            <p style="margin-top: 20px;">
+                Our system uses a deterministic reward logic aligned with real-world productivity goals. Correct
+                decisions earn positive reinforcement, while mistakes are penalized, allowing agents (and humans) to
+                learn the most efficient paths to Inbox Zero.
+            </p>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="shield-alert"></i></div>
+                <h3>Spam Detection</h3>
+                <p>Robust identification of unwanted emails. Learn to separate genuine communication from harmful spam
+                    with high accuracy.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="star"></i></div>
+                <h3>Priority Ranking</h3>
+                <p>Identify critical updates from bosses or clients. Prioritize what matters most to maintain high
+                    productivity.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="folder-tree"></i></div>
+                <h3>Smart Organization</h3>
+                <p>Master the art of categorization. Automatically move emails to appropriate folders based on content
+                    and sender heuristics.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Email Inbox RL Environment. Built for OpenEnv Validation.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
