@@ -528,7 +528,7 @@
                         <span class="time">${currentEmail.timestamp ? new Date(currentEmail.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Now'}</span>
                     </div>
                     <div class="subject">${currentEmail.subject}</div>
-                    <div class="snippet">${currentEmail.body.substring(0, 80)}...</div>
+                    <div class="snippet">${currentEmail.body}</div>
                     ${currentEmail.is_important ? '<span class="tag tag-important">Important</span>' : ''}
                 `;
                 listContainer.appendChild(item);
