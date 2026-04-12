@@ -7,7 +7,7 @@ from .tasks import Task, SpamDetectionTask, ImportantEmailTask, InboxOrganizatio
 
 
 class EmailEnvironment:
-    """RL Environment for Email Inbox tasks."""
+    """RL Environment for Email Inbox tasks with Strict Range scaling."""
 
     def __init__(self, data_path: Optional[str] = None, task_type: str = "spam"):
         if data_path is None:
@@ -27,7 +27,8 @@ class EmailEnvironment:
         self.grader = Grader()
         self.emails: List[Email] = []
         self.current_idx = 0
-        self.episode_reward = 0.01
+        self.episode_reward = 0.1  # Baseline normalized reward
+        self.current_score = 0.1   # Current accuracy score
         self.actions_taken: List[Action] = []
         
         task_map = {
@@ -52,18 +53,20 @@ class EmailEnvironment:
     def reset(self) -> EmailState:
         """Reset environment and return initial state."""
         self.current_idx = 0
-        self.episode_reward = 0.01
+        self.episode_reward = 0.1
+        self.current_score = 0.1
         self.actions_taken = []
         return self._get_state()
 
     def _get_state(self) -> EmailState:
-        """Get current environment state."""
+        """Get current normalized environment state."""
         if self.current_idx >= len(self.emails):
             return EmailState(
                 current_email=None,
                 inbox_size=len(self.emails),
                 processed_count=self.current_idx,
                 reward=self.episode_reward,
+                score=self.current_score,
                 done=True,
             )
         
@@ -73,22 +76,31 @@ class EmailEnvironment:
             inbox_size=len(self.emails),
             processed_count=self.current_idx,
             reward=self.episode_reward,
+            score=self.current_score,
             done=False,
         )
 
     def step(self, action: Action) -> Tuple[EmailState, float, bool]:
-        """Perform action and return next state, reward, done."""
+        """Perform action and return next state, reward (normalized), done."""
         if self.current_idx >= len(self.emails):
-            return self._get_state(), 0.0, True
+            return self._get_state(), 0.1, True
 
         current_email = self.emails[self.current_idx]
         
-        # New task-specific reward logic
+        # Get standardized reward from task
         reward = self.task.grade_step(current_email, action)
         
-        self.episode_reward += reward
+        # Track actions for metrics
         self.actions_taken.append(action)
         self.current_idx += 1
+        
+        # Calculate current accuracy/score to keep metrics within (0.1, 0.9)
+        metrics_emails = self.emails[:self.current_idx]
+        self.current_score = self.task.evaluate(metrics_emails, self.actions_taken)
+        
+        # Set normalized reward for this step (satisfies strictly between 0 and 1)
+        # We report the latest score as the 'cumulative' reward to prevent out-of-range
+        self.episode_reward = self.current_score
         
         next_state = self._get_state()
         done = next_state.done
@@ -96,22 +108,22 @@ class EmailEnvironment:
         return next_state, reward, done
 
     def get_metrics(self) -> EpisodeMetrics:
-        """Get episode metrics based on task evaluation."""
+        """Get episode metrics, ensuring all probability fields are in (0.1, 0.9)."""
         if not self.emails or not self.actions_taken:
             return EpisodeMetrics(
-                total_reward=0.01, emails_processed=0, accuracy=0.01,
-                precision=0.01, recall=0.01
+                total_reward=0.1, emails_processed=0, accuracy=0.1,
+                precision=0.1, recall=0.1
             )
         
-        metrics_emails = self.emails[:len(self.actions_taken)]
-        accuracy = self.task.evaluate(metrics_emails, self.actions_taken)
+        # Final accuracy calculation (already scaled by task.evaluate)
+        final_score = self.task.evaluate(self.emails[:len(self.actions_taken)], self.actions_taken)
         
         return EpisodeMetrics(
-            total_reward=self.episode_reward,
+            total_reward=final_score, # Treat normalized final score as total reward
             emails_processed=len(self.actions_taken),
-            accuracy=accuracy,
-            precision=accuracy, 
-            recall=accuracy
+            accuracy=final_score,
+            precision=final_score,
+            recall=final_score
         )
 
     def get_task_description(self) -> str:
