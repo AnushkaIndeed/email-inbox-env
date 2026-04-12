@@ -99,7 +99,7 @@ class EmailEnvironment:
         self.current_score = round(self.task.evaluate(metrics_emails, self.actions_taken), 2)
         
         # Set normalized reward for this step
-        # We report the latest score as the 'cumulative' reward to prevent out-of-range
+        
         self.episode_reward = self.current_score
         
         next_state = self._get_state()
@@ -115,11 +115,10 @@ class EmailEnvironment:
                 precision=0.2, recall=0.2
             )
         
-        # Final accuracy calculation (already scaled and rounded by task.evaluate)
         final_score = self.task.evaluate(self.emails[:len(self.actions_taken)], self.actions_taken)
         
         return EpisodeMetrics(
-            total_reward=final_score, # Treat normalized final score as total reward
+            total_reward=final_score, 
             emails_processed=len(self.actions_taken),
             accuracy=final_score,
             precision=final_score,

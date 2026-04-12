@@ -22,7 +22,7 @@ class Task(ABC):
         pass
 
 
-# -------------------- SPAM DETECTION --------------------
+
 
 class SpamDetectionTask(Task):
 
@@ -46,8 +46,6 @@ class SpamDetectionTask(Task):
         return safe_score(correct / len(emails))
 
 
-# -------------------- IMPORTANT EMAIL --------------------
-
 class ImportantEmailTask(Task):
 
     def get_description(self) -> str:
@@ -69,8 +67,6 @@ class ImportantEmailTask(Task):
         )
         return safe_score(correct / len(emails))
 
-
-# -------------------- INBOX ORGANIZATION --------------------
 
 class InboxOrganizationTask(Task):
 

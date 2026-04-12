@@ -10,7 +10,7 @@ pinned: false
 
 # IntelliMail — Email Inbox RL Environment
 
-An RL environment that simulates an email inbox. The agent has to learn how to manage emails — detecting spam, flagging important ones, and keeping things organized. Built for the Meta PyTorch hackathon using the OpenEnv framework.
+An RL environment that simulates an email inbox. The agent has to learn how to manage emails — detecting spam, flagging important ones, and keeping things organized. 
 
 ## What it does
 

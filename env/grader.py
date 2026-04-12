@@ -17,7 +17,7 @@ class Grader:
         total = len(emails)
         
         return {
-            "accuracy": task_eval_score,  # Use task-specific evaluation as baseline accuracy
+            "accuracy": task_eval_score,  
             "total_processed": total,
-            "reward_sum": sum(actions[i].confidence for i in range(len(actions))), # Example aggregate
+            "reward_sum": sum(actions[i].confidence for i in range(len(actions))), 
         }

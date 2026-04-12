@@ -5,10 +5,9 @@ from env.models import Action
 import os
 import uvicorn
 
-# Define base directory for locating static UI files
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Create one environment per task type as defined in openenv.yaml
+
 envs = {
     "spam": EmailEnvironment(task_type="spam"),
     "important": EmailEnvironment(task_type="important"),
@@ -66,8 +65,8 @@ async def reset_api(request: Request):
 
     return {
         "observation": email_data,
-        "reward": safe_score(state.reward),       # ← clamped
-        "score": safe_score(state.score),         # ← clamped
+        "reward": safe_score(state.reward),       
+        "score": safe_score(state.score),        
         "processed_count": state.processed_count,
         "inbox_size": state.inbox_size,
         "done": state.done,
@@ -84,7 +83,7 @@ async def step_api(request: Request):
         task_name = "spam"
 
     env = envs[task_name]
-    act = Action(action_type=action_type, confidence=0.5)  # neutral confidence
+    act = Action(action_type=action_type, confidence=0.5)  
     next_state, reward, done = env.step(act)
     states[task_name] = next_state
 
@@ -102,9 +101,9 @@ async def step_api(request: Request):
 
     return {
         "observation": email_data,
-        "reward": safe_score(reward),                  # ← was round(reward, 2) — bug fixed
-        "score": safe_score(next_state.score),         # ← clamped
-        "total_reward": safe_score(next_state.reward), # ← clamped
+        "reward": safe_score(reward),                  
+        "score": safe_score(next_state.score),         
+        "total_reward": safe_score(next_state.reward),
         "processed_count": next_state.processed_count,
         "inbox_size": next_state.inbox_size,
         "done": done,

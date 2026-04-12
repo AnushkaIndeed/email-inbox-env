@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -229,7 +230,10 @@
             margin-top: 8px;
         }
 
-        .tag-important { background: #fee2e2; color: #ef4444; }
+        .tag-important {
+            background: #fee2e2;
+            color: #ef4444;
+        }
 
         /* Right Panel - Email Content */
         .email-reader {
@@ -378,8 +382,13 @@
             border-radius: 4px;
         }
 
-        .reward-pos { color: var(--success); }
-        .reward-neg { color: var(--danger); }
+        .reward-pos {
+            color: var(--success);
+        }
+
+        .reward-neg {
+            color: var(--danger);
+        }
 
         /* Empty State */
         .empty-state {
@@ -406,11 +415,19 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -436,7 +453,7 @@
                 <span>Archive</span>
             </div>
         </nav>
-        
+
         <div class="stats-section">
             <div class="stat-card">
                 <div class="stat-label">Total Reward</div>
@@ -446,7 +463,8 @@
                 <div class="stat-label">Processed</div>
                 <div class="stat-value" id="processed-count">0 / 0</div>
             </div>
-            <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 12px;" onclick="resetEnv()">
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 12px;"
+                onclick="resetEnv()">
                 <i data-lucide="refresh-cw"></i> Reset Environment
             </button>
         </div>
@@ -502,7 +520,7 @@
                 body: JSON.stringify({ action })
             });
             const data = await response.json();
-            
+
             showToast(action, data.reward);
             updateState(data);
         }
@@ -526,7 +544,7 @@
                 item.innerHTML = `
                     <div class="email-item-header">
                         <span class="sender">${currentEmail.sender}</span>
-                        <span class="time">${currentEmail.timestamp ? new Date(currentEmail.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Now'}</span>
+                        <span class="time">${currentEmail.timestamp ? new Date(currentEmail.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}</span>
                     </div>
                     <div class="subject">${currentEmail.subject}</div>
                     <div class="snippet">${currentEmail.body}</div>
@@ -557,7 +575,7 @@
                                 <div class="avatar">${currentEmail.sender[0].toUpperCase()}</div>
                                 <div class="sender-details">
                                     <h4>${currentEmail.sender}</h4>
-                                    <p>To: me &lt;user@example.com&gt;</p>
+                                    <p>To: me user@example.com</p>
                                 </div>
                             </div>
                         </div>
@@ -575,7 +593,7 @@
                     </div>
                 `;
             }
-            
+
             lucide.createIcons();
         }
 
@@ -594,9 +612,10 @@
 
         // Initialize Lucide icons
         lucide.createIcons();
-        
+
         // Initial load
         resetEnv();
     </script>
 </body>
+
 </html>
