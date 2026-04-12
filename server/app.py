@@ -74,7 +74,8 @@ async def step_api(request: Request):
         "total_reward": state.reward,
         "processed_count": state.processed_count,
         "inbox_size": state.inbox_size,
-        "done": done
+        "done": done,
+        "task_score": state.score
     }
 
 def main():

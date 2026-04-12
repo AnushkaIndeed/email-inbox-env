@@ -17,12 +17,12 @@ class Email(BaseModel):
     has_attachment: bool = False
 
 class EmailState(BaseModel):
-    """Environment state with explicit score field to match ReasoningGym template."""
+    """Environment state with explicit score field and tighter safe ranges."""
     current_email: Optional[Email] = None   
-    inbox_size: int = 0
+    inbox_size: int = 1  # Non-zero integer
     processed_count: int = 0
-    reward: float = 0.1  # Current normalized reward
-    score: float = 0.1   # Explicit score field for validator
+    reward: float = 0.2  # Start strictly between 0 and 1
+    score: float = 0.2   # Explicit score field for validator
     done: bool = False
 
 
@@ -34,7 +34,7 @@ class Action(BaseModel):
 
 
 class EpisodeMetrics(BaseModel):
-    """Metrics for an episode with all scores in [0, 1] range."""
+    """Metrics for an episode with all scores in strictly (0, 1)."""
     total_reward: float
     emails_processed: int
     accuracy: float

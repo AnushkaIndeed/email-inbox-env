@@ -53,8 +53,8 @@ class EmailEnvironment:
     def reset(self) -> EmailState:
         """Reset environment and return initial state."""
         self.current_idx = 0
-        self.episode_reward = 0.1
-        self.current_score = 0.1
+        self.episode_reward = 0.2
+        self.current_score = 0.2
         self.actions_taken = []
         return self._get_state()
 
@@ -111,8 +111,8 @@ class EmailEnvironment:
         """Get episode metrics, ensuring all probability fields are in (0.1, 0.9)."""
         if not self.emails or not self.actions_taken:
             return EpisodeMetrics(
-                total_reward=0.1, emails_processed=0, accuracy=0.1,
-                precision=0.1, recall=0.1
+                total_reward=0.2, emails_processed=0, accuracy=0.2,
+                precision=0.2, recall=0.2
             )
         
         # Final accuracy calculation (already scaled by task.evaluate)
