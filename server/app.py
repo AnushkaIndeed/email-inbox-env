@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from env.email_env import EmailEnvironment
 from env.models import Action
 import os
