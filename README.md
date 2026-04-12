@@ -7,127 +7,159 @@ sdk: docker
 app_file: app.py
 pinned: false
 ---
-# Email Inbox Environment
 
-A reinforcement learning environment for email inbox management with support for multiple tasks including spam detection, important email prioritization, and inbox organization.
+# IntelliMail — Email Inbox RL Environment
 
-## Project Structure
+An RL environment that simulates an email inbox. The agent has to learn how to manage emails — detecting spam, flagging important ones, and keeping things organized. Built for the Meta PyTorch hackathon using the OpenEnv framework.
+
+## What it does
+
+The environment gives the agent one email at a time and the agent picks an action (`classify`, `delete`, `archive`, or `move`). After processing all emails, we evaluate how well it did based on the task.
+
+There are three tasks:
+- **Spam Detection** — correctly identify and delete spam while keeping legit emails
+- **Important Email** — flag important emails so the user sees them first
+- **Inbox Organization** — sort everything into the right place
+
+Each task has its own grading logic and scoring.
+
+## Project structure
 
 ```
 email-inbox/
-├── app.py              # Main FastAPI server & API
-├── dashboard.html      # Interactive IntelliMail dashboard
-├── login.html          # Landing & Login page
+├── inference.py          # main script — runs the agent through all tasks
+├── server/
+│   └── app.py            # FastAPI server (reset/step endpoints)
 ├── env/
-│   ├── email_env.py    # Main RL environment logic
-│   ├── models.py       # Pydantic data models
-│   ├── tasks.py        # RL task definitions
-│   └── grader.py       # Scoring and grading logic
+│   ├── email_env.py      # core RL environment (step, reset, metrics)
+│   ├── tasks.py          # task definitions + grading
+│   ├── models.py         # pydantic models (Email, Action, State, etc.)
+│   └── grader.py         # metric computation
 ├── data/
-│   └── emails.json     # Sample email dataset
-├── openenv.yaml        # OpenEnv environment config
-├── Dockerfile          # Container configuration for deployment
-├── requirements.txt    # Python dependencies
-└── README.md           # Project documentation
+│   └── emails.json       # dataset of 10 sample emails
+├── openenv.yaml          # OpenEnv config
+├── Dockerfile
+├── pyproject.toml
+├── requirements.txt
+├── dashboard.html        # web UI for the inbox
+└── login.html            # login page
 ```
 
-## Features
+## How to run
 
-### Tasks
-1. **Spam Detection** - Identify and remove spam emails
-2. **Important Email** - Prioritize and flag important emails  
-3. **Inbox Organization** - Organize emails into appropriate folders
-
-### Components
-
-- **EmailEnvironment** - Main RL environment with step/reset interface
-- **Models** - Pydantic models for Email, Action, State, and Metrics
-- **Grader** - Scoring system and reward computation
-- **Tasks** - Abstract task interface with 3 implementations
-
-## Usage
-
-### Setup
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Run Inference
+### Run inference locally
 
 ```bash
-# Run with spam detection task (default)
 python inference.py
-
-# Run with different tasks
-python inference.py important
-python inference.py organize
 ```
+
+This runs all three tasks (spam, important, organize) sequentially and prints step-by-step logs like:
+
+```
+[START] task=spam env=email_env model=gpt-4.1-mini
+[STEP] step=1 action=delete reward=0.85 done=false error=null
+[STEP] step=2 action=classify reward=0.50 done=false error=null
+...
+[END] success=true steps=10 score=0.68 rewards=0.85,0.50,...
+```
+
+### Run the server
+
+```bash
+python -m server.app
+```
+
+This starts a FastAPI server on port 7860 with:
+- `POST /reset` — reset the env for a task
+- `POST /step` — take an action
+- `GET /` — login page
+- `GET /dashboard` — interactive dashboard
 
 ### Docker
 
 ```bash
-# Build image
 docker build -t email-inbox-env .
-
-# Run container
-docker run email-inbox-env
+docker run -p 7860:7860 email-inbox-env
 ```
 
-## Data Format
-
-See `data/emails.json` for the email dataset format. Each email contains:
-- `id` - Unique email identifier
-- `sender` - Sender email address
-- `subject` - Email subject
-- `body` - Email content
-- `timestamp` - Email timestamp
-- `is_spam` - Whether email is spam
-- `is_important` - Whether email is important
-- `has_attachment` - Whether email has attachments
-
-## Configuration
-
-Edit `openenv.yaml` to configure:
-- Environment observation and action spaces
-- Task parameters
-- Training hyperparameters
-- Data splits
-
-## API
-
-### EmailEnvironment
+## How the environment works
 
 ```python
 from env.email_env import EmailEnvironment
 from env.models import Action
 
-# Create environment
 env = EmailEnvironment(task_type="spam")
-
-# Reset environment
 state = env.reset()
 
-# Take action
-action = Action(action_type="delete")
-next_state, reward, done = env.step(action)
+while not state.done:
+    action = Action(action_type="delete")  # or classify/archive/move
+    state, reward, done = env.step(action)
+    print(f"reward: {reward}, done: {done}")
 
-# Get metrics
 metrics = env.get_metrics()
+print(f"accuracy: {metrics.accuracy}")
 ```
 
-### Action Types
+Each step returns:
+- `state` — next email to process + current score
+- `reward` — how good the action was for this specific email
+- `done` — whether all emails have been processed
 
-- `classify` - Mark email for classification
-- `archive` - Archive email
-- `delete` - Delete email
-- `move` - Move to folder
+## LLM integration
 
-## Rewards
+If `HF_TOKEN` (or `API_KEY`) is set, the agent uses an LLM to decide actions. Otherwise it falls back to simple keyword heuristics (e.g. emails containing "win" or "offer" → delete).
 
-- **Spam Detection**: +1.0 for correct action, -1.0 for incorrect
-- **Important Email**: +1.0 for identifying important, -0.5 for missing
-- **Organization**: +0.5 for moving, +0.1 for archiving
+The LLM gets the email text and picks from `[classify, delete, archive, move]`.
+
+## Scoring
+
+All scores are kept strictly between 0 and 1 (exclusive). The final task score is based on accuracy — how many emails the agent handled correctly for that specific task.
+
+| Task | Correct action (spam) | Correct action (important) | Correct action (normal) |
+|------|----------------------|---------------------------|------------------------|
+| Spam Detection | delete spam, keep rest | — | — |
+| Important Email | — | classify important | don't classify normal |
+| Organization | delete spam, classify important | classify important | classify/move/archive |
+
+## Email data format
+
+Each email in `data/emails.json`:
+
+```json
+{
+  "id": "email_001",
+  "sender": "offers@spam-store.com",
+  "subject": "You've Won a Prize!",
+  "body": "Click here to claim...",
+  "timestamp": "2024-01-15T09:30:00",
+  "is_spam": true,
+  "is_important": false,
+  "has_attachment": false
+}
+```
+
+## Environment variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `API_BASE_URL` | LLM API endpoint | `https://api.openai.com/v1` |
+| `MODEL_NAME` | Model to use | `gpt-4.1-mini` |
+| `HF_TOKEN` | API key for LLM calls | None (uses heuristic fallback) |
+
+## Tech stack
+
+- Python 3.9+
+- FastAPI + Uvicorn
+- Pydantic v2
+- OpenAI SDK
+- OpenEnv framework
+- Docker
 
 ## License
 
