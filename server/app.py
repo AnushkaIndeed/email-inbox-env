@@ -8,8 +8,15 @@ import uvicorn
 # Define base directory for locating static UI files
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-env = EmailEnvironment()
-state = env.reset()
+# Create one environment per task type as defined in openenv.yaml
+envs = {
+    "spam": EmailEnvironment(task_type="spam"),
+    "important": EmailEnvironment(task_type="important"),
+    "organize": EmailEnvironment(task_type="organize"),
+}
+# Default env for the dashboard
+default_env = envs["spam"]
+states = {k: v.reset() for k, v in envs.items()}
 
 app = FastAPI()
 
@@ -22,10 +29,21 @@ async def read_dashboard():
     return FileResponse(os.path.join(BASE_DIR, 'dashboard.html'))
 
 @app.post("/reset")
-async def reset_api():
-    global state
+async def reset_api(request: Request):
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+
+    task_name = body.get("task", "spam")
+    if task_name not in envs:
+        task_name = "spam"
+
+    env = envs[task_name]
     state = env.reset()
-    
+    states[task_name] = state
+
     email_data = None
     if state.current_email:
         email_data = {
@@ -41,41 +59,48 @@ async def reset_api():
     return {
         "observation": email_data,
         "reward": state.reward,
+        "score": state.score,
         "processed_count": state.processed_count,
         "inbox_size": state.inbox_size,
-        "done": state.done
+        "done": state.done,
+        "task": task_name,
     }
 
 @app.post("/step")
 async def step_api(request: Request):
-    global state
     data = await request.json()
     action_type = data.get("action")
-    
-    act = Action(action_type=action_type, confidence=1.0)
+    task_name = data.get("task", "spam")
+    if task_name not in envs:
+        task_name = "spam"
+
+    env = envs[task_name]
+    # Use safe confidence value (not 1.0 to avoid boundary issues)
+    act = Action(action_type=action_type, confidence=0.8)
     next_state, reward, done = env.step(act)
-    state = next_state
+    states[task_name] = next_state
 
     email_data = None
-    if state.current_email:
+    if next_state.current_email:
         email_data = {
-            "id": state.current_email.id,
-            "sender": state.current_email.sender,
-            "subject": state.current_email.subject,
-            "body": state.current_email.body,
-            "timestamp": state.current_email.timestamp.isoformat() if state.current_email.timestamp else None,
-            "is_important": state.current_email.is_important,
-            "has_attachment": state.current_email.has_attachment
+            "id": next_state.current_email.id,
+            "sender": next_state.current_email.sender,
+            "subject": next_state.current_email.subject,
+            "body": next_state.current_email.body,
+            "timestamp": next_state.current_email.timestamp.isoformat() if next_state.current_email.timestamp else None,
+            "is_important": next_state.current_email.is_important,
+            "has_attachment": next_state.current_email.has_attachment
         }
 
     return {
         "observation": email_data,
-        "reward": reward,
-        "total_reward": state.reward,
-        "processed_count": state.processed_count,
-        "inbox_size": state.inbox_size,
+        "reward": round(reward, 2),
+        "score": next_state.score,
+        "total_reward": next_state.reward,
+        "processed_count": next_state.processed_count,
+        "inbox_size": next_state.inbox_size,
         "done": done,
-        "task_score": state.score
+        "task": task_name,
     }
 
 def main():

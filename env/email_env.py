@@ -27,8 +27,8 @@ class EmailEnvironment:
         self.grader = Grader()
         self.emails: List[Email] = []
         self.current_idx = 0
-        self.episode_reward = 0.1  # Baseline normalized reward
-        self.current_score = 0.1   # Current accuracy score
+        self.episode_reward = 0.2  # Baseline normalized reward — within (0, 1)
+        self.current_score = 0.2   # Current accuracy score — within (0, 1)
         self.actions_taken: List[Action] = []
         
         task_map = {
@@ -83,7 +83,7 @@ class EmailEnvironment:
     def step(self, action: Action) -> Tuple[EmailState, float, bool]:
         """Perform action and return next state, reward (normalized), done."""
         if self.current_idx >= len(self.emails):
-            return self._get_state(), 0.1, True
+            return self._get_state(), 0.2, True
 
         current_email = self.emails[self.current_idx]
         
