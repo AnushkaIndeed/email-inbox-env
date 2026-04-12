@@ -35,9 +35,9 @@ class SpamDetectionTask(Task):
             return 0.1 if action.action_type != "delete" else -1.0
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
-        """Score based on spam detection accuracy."""
+        """Score based on spam detection accuracy (scaled for validator constraints)."""
         if not emails:
-            return 0.0
+            return 0.01
         correct = 0
         for email, action in zip(emails, actions):
             if email.is_spam and action.action_type == "delete":
@@ -45,7 +45,8 @@ class SpamDetectionTask(Task):
             elif not email.is_spam and action.action_type != "delete":
                 correct += 1
         
-        return correct / len(emails)
+        raw_score = correct / len(emails)
+        return 0.01 + 0.98 * raw_score
 
 
 class ImportantEmailTask(Task):
@@ -62,9 +63,9 @@ class ImportantEmailTask(Task):
             return 0.1 if action.action_type != "classify" else -0.5
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
-        """Score based on important email identification."""
+        """Score based on important email identification (scaled for validator constraints)."""
         if not emails:
-            return 0.0
+            return 0.01
         correct = 0
         for email, action in zip(emails, actions):
             if email.is_important and action.action_type == "classify":
@@ -72,7 +73,8 @@ class ImportantEmailTask(Task):
             elif not email.is_important and action.action_type != "classify":
                 correct += 1
         
-        return correct / len(emails)
+        raw_score = correct / len(emails)
+        return 0.01 + 0.98 * raw_score
 
 
 class InboxOrganizationTask(Task):
@@ -88,13 +90,14 @@ class InboxOrganizationTask(Task):
         return -0.1
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
-        """Score based on appropriate folder organization."""
+        """Score based on appropriate folder organization (scaled for validator constraints)."""
         if not emails:
-            return 0.0
+            return 0.01
         
         correct = 0
         for email, action in zip(emails, actions):
             if action.action_type in ["move", "archive"]:
                 correct += 1
         
-        return correct / len(emails)
+        raw_score = correct / len(emails)
+        return 0.01 + 0.98 * raw_score
