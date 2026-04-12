@@ -9,8 +9,9 @@ COPY pyproject.toml .
 COPY uv.lock .
 COPY requirements.txt .
 
-# Sync dependencies using uv
-RUN uv sync --no-dev
+# Install dependencies system-wide to ensure all scripts (like inference.py) 
+# can find modules even if run via standard python3
+RUN uv pip install --system -r requirements.txt
 
 COPY . .
 
@@ -19,5 +20,5 @@ ENV PYTHONPATH=/app
 
 EXPOSE 7860
 
-# Run the server via the entry point defined in pyproject.toml
-CMD ["uv", "run", "server"]
+# Run the server directly using the module path
+CMD ["python", "-m", "server.app"]
