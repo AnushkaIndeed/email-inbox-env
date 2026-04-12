@@ -95,7 +95,7 @@ def run_inference(task_type="spam"):
                 error = None
 
         except Exception as e:
-            reward = 0.0
+            reward = 0.2
             done = True
             error = str(e)
             next_state = state 

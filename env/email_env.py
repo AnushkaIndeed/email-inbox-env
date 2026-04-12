@@ -94,11 +94,11 @@ class EmailEnvironment:
         self.actions_taken.append(action)
         self.current_idx += 1
         
-        # Calculate current accuracy/score to keep metrics within (0.1, 0.9)
+        # Calculate current accuracy/score to keep metrics within (0.2, 0.8)
         metrics_emails = self.emails[:self.current_idx]
-        self.current_score = self.task.evaluate(metrics_emails, self.actions_taken)
+        self.current_score = round(self.task.evaluate(metrics_emails, self.actions_taken), 2)
         
-        # Set normalized reward for this step (satisfies strictly between 0 and 1)
+        # Set normalized reward for this step
         # We report the latest score as the 'cumulative' reward to prevent out-of-range
         self.episode_reward = self.current_score
         
@@ -115,7 +115,7 @@ class EmailEnvironment:
                 precision=0.2, recall=0.2
             )
         
-        # Final accuracy calculation (already scaled by task.evaluate)
+        # Final accuracy calculation (already scaled and rounded by task.evaluate)
         final_score = self.task.evaluate(self.emails[:len(self.actions_taken)], self.actions_taken)
         
         return EpisodeMetrics(
