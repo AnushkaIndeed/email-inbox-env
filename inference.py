@@ -5,8 +5,7 @@ from env.models import Action
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4.1-mini")
-HF_TOKEN = os.getenv("HF_TOKEN", os.getenv("API_KEY", None)) # Try both names
-
+HF_TOKEN = os.getenv("HF_TOKEN", os.getenv("API_KEY", None)) 
 # OpenAI client initialization
 client = None
 if HF_TOKEN:
