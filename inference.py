@@ -17,8 +17,8 @@ if HF_TOKEN:
 
 
 def safe_score(x: float) -> float:
-    """Guarantee the score is strictly within (0, 1) — not 0.0, not 1.0."""
-    return max(0.01, min(0.99, float(x)))
+    """Guarantee score is strictly within (0, 1) — safe even after :.2f formatting."""
+    return round(max(0.02, min(0.98, float(x))), 4)
 
 
 def decide_action_with_llm(email_text: str) -> str:
@@ -81,7 +81,7 @@ def run_inference(task_type: str = "spam") -> float:
 
         action = Action(
             action_type=action_type,
-            confidence=0.5  # Neutral confidence to avoid boundary issues
+            confidence=0.5  
         )
 
         try:
@@ -93,26 +93,23 @@ def run_inference(task_type: str = "spam") -> float:
                 next_state, reward, done = result
                 error = None
 
-        except Exception as e:
-            # Safe fallback — all values strictly between 0 and 1
+        except Exception as e:   
             reward = 0.5
             done = True
             error = str(e)
             next_state = state
 
-        # Clamp reward to safe range
         reward = safe_score(reward)
         rewards.append(reward)
 
         print(
             f"[STEP] step={step} action={action_type} "
-            f"reward={reward:.2f} done={str(done).lower()} "
+            f"reward={reward:.4f} done={str(done).lower()} "
             f"error={error if error else 'null'}"
         )
 
         state = next_state
 
-    # Compute final task score using the environment's task evaluator
     metrics = env.get_metrics()
     task_score = safe_score(metrics.accuracy)
 
@@ -120,11 +117,9 @@ def run_inference(task_type: str = "spam") -> float:
 
     print(
         f"[END] success={str(success).lower()} steps={step} "
-        f"rewards={','.join(f'{r:.2f}' for r in rewards)}"
+        f"rewards={','.join(f'{r:.4f}' for r in rewards)}"
     )
-
-    # Explicit task score line — validator may look for this
-    print(f"[TASK_SCORE] task={task_type} score={task_score:.2f}")
+    print(f"[TASK_SCORE] task={task_type} score={task_score:.4f}")
 
     return task_score
 
@@ -135,6 +130,6 @@ if __name__ == "__main__":
         score = run_inference(task)
         task_scores[task] = score
 
-    # Summary — validator may look for this
+    
     print(f"[SUMMARY] tasks={len(task_scores)} "
-          f"scores={','.join(f'{k}:{v:.2f}' for k, v in task_scores.items())}")
+          f"scores={','.join(f'{k}:{v:.4f}' for k, v in task_scores.items())}")
