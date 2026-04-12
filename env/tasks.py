@@ -28,11 +28,17 @@ class SpamDetectionTask(Task):
         return "Detect and properly classify spam emails from the inbox"
 
     def grade_step(self, email: Email, action: Action) -> float:
-        """Reward specifically for handling spam correctly."""
+        """
+        Reward within (0, 1) to satisfy strict validator constraints.
+        Correct: 0.99
+        Incorrect: 0.01
+        """
         if email.is_spam:
-            return 1.0 if action.action_type == "delete" else -0.5
+            return 0.99 if action.action_type == "delete" else 0.01
         else:
-            return 0.1 if action.action_type != "delete" else -1.0
+            if action.action_type == "delete":
+                return 0.01 # Incorrect (deleted important/valid)
+            return 0.10 # Correct baseline (kept valid email)
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on spam detection accuracy (scaled for validator constraints)."""
@@ -56,11 +62,15 @@ class ImportantEmailTask(Task):
         return "Identify and prioritize important emails for user attention"
 
     def grade_step(self, email: Email, action: Action) -> float:
-        """Reward specifically for identifying importance."""
+        """
+        Reward within (0, 1) to satisfy strict validator constraints.
+        Correct: 0.99
+        Incorrect: 0.01
+        """
         if email.is_important:
-            return 1.0 if action.action_type == "classify" else -1.0
+            return 0.99 if action.action_type == "classify" else 0.01
         else:
-            return 0.1 if action.action_type != "classify" else -0.5
+            return 0.10 if action.action_type != "classify" else 0.01
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on important email identification (scaled for validator constraints)."""
@@ -84,10 +94,14 @@ class InboxOrganizationTask(Task):
         return "Organize emails into appropriate folders (work, personal, etc.)"
 
     def grade_step(self, email: Email, action: Action) -> float:
-        """Reward for any organizational action."""
+        """
+        Reward within (0, 1) to satisfy strict validator constraints.
+        Correct: 0.90
+        Incorrect: 0.01
+        """
         if action.action_type in ["move", "archive"]:
-            return 0.5
-        return -0.1
+            return 0.90
+        return 0.01
 
     def evaluate(self, emails: List[Email], actions: List[Action]) -> float:
         """Score based on appropriate folder organization (scaled for validator constraints)."""

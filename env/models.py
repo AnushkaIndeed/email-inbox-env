@@ -20,7 +20,7 @@ class EmailState(BaseModel):
     current_email: Optional[Email] = None   
     inbox_size: int = 0
     processed_count: int = 0
-    reward: float = 0.0
+    reward: float = 0.01
     done: bool = False
 
 

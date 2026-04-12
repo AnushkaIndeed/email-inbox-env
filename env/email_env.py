@@ -27,7 +27,7 @@ class EmailEnvironment:
         self.grader = Grader()
         self.emails: List[Email] = []
         self.current_idx = 0
-        self.episode_reward = 0.0
+        self.episode_reward = 0.01
         self.actions_taken: List[Action] = []
         
         task_map = {
@@ -52,7 +52,7 @@ class EmailEnvironment:
     def reset(self) -> EmailState:
         """Reset environment and return initial state."""
         self.current_idx = 0
-        self.episode_reward = 0.0
+        self.episode_reward = 0.01
         self.actions_taken = []
         return self._get_state()
 
@@ -99,7 +99,7 @@ class EmailEnvironment:
         """Get episode metrics based on task evaluation."""
         if not self.emails or not self.actions_taken:
             return EpisodeMetrics(
-                total_reward=0.0, emails_processed=0, accuracy=0.01,
+                total_reward=0.01, emails_processed=0, accuracy=0.01,
                 precision=0.01, recall=0.01
             )
         
